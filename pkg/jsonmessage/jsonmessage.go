@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strings"
 	"time"
 
 	"github.com/docker/docker/pkg/jsonlog"
-	"github.com/docker/docker/pkg/term"
-	"github.com/docker/go-units"
 )
 
 // JSONError wraps a concrete Code and Message, `Code` is
@@ -35,57 +32,7 @@ type JSONProgress struct {
 }
 
 func (p *JSONProgress) String() string {
-	var (
-		width       = 200
-		pbBox       string
-		numbersBox  string
-		timeLeftBox string
-	)
-
-	ws, err := term.GetWinsize(p.terminalFd)
-	if err == nil {
-		width = int(ws.Width)
-	}
-
-	if p.Current <= 0 && p.Total <= 0 {
-		return ""
-	}
-	current := units.HumanSize(float64(p.Current))
-	if p.Total <= 0 {
-		return fmt.Sprintf("%8v", current)
-	}
-	total := units.HumanSize(float64(p.Total))
-	percentage := int(float64(p.Current)/float64(p.Total)*100) / 2
-	if percentage > 50 {
-		percentage = 50
-	}
-	if width > 110 {
-		// this number can't be negative gh#7136
-		numSpaces := 0
-		if 50-percentage > 0 {
-			numSpaces = 50 - percentage
-		}
-		pbBox = fmt.Sprintf("[%s>%s] ", strings.Repeat("=", percentage), strings.Repeat(" ", numSpaces))
-	}
-
-	numbersBox = fmt.Sprintf("%8v/%v", current, total)
-
-	if p.Current > p.Total {
-		// remove total display if the reported current is wonky.
-		numbersBox = fmt.Sprintf("%8v", current)
-	}
-
-	if p.Current > 0 && p.Start > 0 && percentage < 50 {
-		fromStart := time.Now().UTC().Sub(time.Unix(p.Start, 0))
-		perEntry := fromStart / time.Duration(p.Current)
-		left := time.Duration(p.Total-p.Current) * perEntry
-		left = (left / time.Second) * time.Second
-
-		if width > 50 {
-			timeLeftBox = " " + left.String()
-		}
-	}
-	return pbBox + numbersBox + timeLeftBox
+	return ""
 }
 
 // JSONMessage defines a message struct. It describes
